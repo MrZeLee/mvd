@@ -20,9 +20,10 @@ options:
   -n [N], --number [N]  Matches the N most recent files.
   ```
 
-  ## Info
+## Info
 
 To add the command to work with your terminal just added to your PATH or create a link like in this example:
 ```
 ln -s mvd/main.py /usr/local/bin/mvd
 ```
+

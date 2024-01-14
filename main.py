@@ -9,14 +9,14 @@ import argparse
 
 
 
-def main(arguments, date=None, order=None, invert=None, time=None, number=None):
+def main(arguments, date=None, order=None, invert=None, time=None, number=None, rename=None):
 
     # Specify the download folder path
     download_folder = '~/Downloads'
 
     # Get the list of files in the download folder
     download_folder = os.path.expanduser(download_folder)
-    files = os.listdir(download_folder)
+    files = list(filter(lambda x: x != '.DS_Store', os.listdir(download_folder)))
 
     func = lambda x: datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(download_folder, x))) > (datetime.datetime.now() - datetime.timedelta(minutes=time))
 
@@ -65,14 +65,20 @@ def main(arguments, date=None, order=None, invert=None, time=None, number=None):
         if invert:
             most_recent_files = most_recent_files[::-1]
 
+        if len(arguments) > 0:
+            arguments = '_'.join(arguments)
+
         for most_recent_file in most_recent_files:
             before = most_recent_file
             # Construct the source and destination paths
             source_path = os.path.join(download_folder, most_recent_file)
 
             if len(arguments) > 0:
-                arguments = '_'.join(arguments)
-                most_recent_file = arguments + most_recent_file
+                if rename:
+                    base_name, extension = os.path.splitext(most_recent_file)
+                    most_recent_file = arguments + extension 
+                else:
+                    most_recent_file = arguments + most_recent_file
 
             base_name, extension = os.path.splitext(most_recent_file)
 
@@ -107,6 +113,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--invert', action='store_true', help="Inverts the order.")
     parser.add_argument('-t','--time', type=int, nargs='?',metavar="minutes", help="Matches all the files that have been downloaded in the last N minutes.")
     parser.add_argument('-n', '--number', type=int, nargs='?', metavar="N", help="Matches the N most recent files.")
+    parser.add_argument('-r', '--rename', action='store_true', help="Renames the file with the arguments")
 
     parser.add_argument('args', nargs='*', help='Description of command.')
 
@@ -114,4 +121,4 @@ if __name__ == '__main__':
     args = parser.parse_args(sys.argv[1:])
 
     # Call the main function
-    main(args.args, args.date, args.sort, args.invert, args.time, args.number)
+    main(args.args, args.date, args.sort, args.invert, args.time, args.number, args.rename)
