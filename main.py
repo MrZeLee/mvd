@@ -7,7 +7,9 @@ import re
 import datetime
 import argparse
 
-
+SEPARATOR = "_"
+DATE_SEPARATOR = "-"
+DATE_FORMAT = "%Y-%m-%d".replace('-',DATE_SEPARATOR)
 
 def main(arguments, date=None, order=None, invert=None, time=None, number=None, rename=None):
 
@@ -21,7 +23,7 @@ def main(arguments, date=None, order=None, invert=None, time=None, number=None, 
     func = lambda x: datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(download_folder, x))) > (datetime.datetime.now() - datetime.timedelta(minutes=time))
 
     def order_map_func(x):
-        regex = re.match(r'^(\d{1,2})-{1}[^-].*$',x)
+        regex = re.match(r'^(\d{1,2})'+SEPARATOR+r'{1}[^'+SEPARATOR+r'].*$',x)
         if regex:
             try:
                 number = int(regex.groups()[0])
@@ -34,7 +36,7 @@ def main(arguments, date=None, order=None, invert=None, time=None, number=None, 
     if order:
         files_current_directory = os.listdir(os.getcwd())
         start = max(
-                    [0]+list(filter(lambda x: x == 0,
+                    [0]+list(filter(lambda x: x != 0,
                             list(map(order_map_func,files_current_directory)))
                         )
                     ) + 1
@@ -42,7 +44,7 @@ def main(arguments, date=None, order=None, invert=None, time=None, number=None, 
         start = -1
 
     if date:
-        today = datetime.datetime.now().strftime("%Y-%m-%d") + "_"
+        today = datetime.datetime.now().strftime(DATE_FORMAT) + SEPARATOR
     else:
         today = ""
 
@@ -66,7 +68,7 @@ def main(arguments, date=None, order=None, invert=None, time=None, number=None, 
             most_recent_files = most_recent_files[::-1]
 
         if len(arguments) > 0:
-            arguments = '_'.join(arguments)
+            arguments = SEPARATOR.join(arguments)
 
         for most_recent_file in most_recent_files:
             before = most_recent_file
@@ -83,12 +85,12 @@ def main(arguments, date=None, order=None, invert=None, time=None, number=None, 
             base_name, extension = os.path.splitext(most_recent_file)
 
             if order:
-                regex = re.match(r'^(?:\d{1,2}-+){0,1}(.*?)(?: *\( *\d* *\) *)* *$',base_name)
+                regex = re.match(r'^(?:\d{2}_){0,1}(.*?)(?: *\( *\d* *\) *)* *$',base_name)
             else:
                 regex = re.match(r'^(.*?)(?: *\( *\d* *\) *)* *$',base_name)
 
             if start != -1:
-                start_to_string = str(start).zfill(2) + "-"
+                start_to_string = str(start).zfill(2) + SEPARATOR
                 start += 1
             else:
                 start_to_string = ""
