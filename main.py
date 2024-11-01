@@ -1,4 +1,4 @@
-#! /usr/local/bin/python
+#!/usr/bin/env python3
 
 import os
 import shutil
@@ -7,14 +7,14 @@ import re
 import datetime
 import argparse
 
-SEPARATOR = "_"
+SEPARATOR = "-"
 DATE_SEPARATOR = "-"
 DATE_FORMAT = "%Y-%m-%d".replace('-',DATE_SEPARATOR)
 
 def main(arguments, date=None, order=None, invert=None, time=None, number=None, rename=None):
 
     # Specify the download folder path
-    download_folder = '~/Downloads'
+    download_folder = os.path.join(os.environ["HOME"], "Downloads")
 
     # Get the list of files in the download folder
     download_folder = os.path.expanduser(download_folder)
@@ -70,7 +70,7 @@ def main(arguments, date=None, order=None, invert=None, time=None, number=None, 
         if len(arguments) > 0:
             arguments = SEPARATOR.join(arguments)
 
-        for most_recent_file in most_recent_files:
+        for most_recent_file in most_recent_files[::-1]:
             before = most_recent_file
             # Construct the source and destination paths
             source_path = os.path.join(download_folder, most_recent_file)
